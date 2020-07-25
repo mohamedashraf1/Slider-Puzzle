@@ -1,7 +1,7 @@
 import edu.princeton.cs.algs4.Stack;
 
 public class Board {
-    final int[][] myBoard;
+    private final int[][] myBoard;
 
 
     // create a board from an n-by-n array of tiles,
@@ -173,7 +173,7 @@ public class Board {
                 }
             }
         }
-        
+
         return new Board(twinArr);
     }
 
