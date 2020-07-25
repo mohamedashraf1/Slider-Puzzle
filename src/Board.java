@@ -45,17 +45,13 @@ public class Board {
     // sum of Manhattan distances between tiles and goal
     public int manhattan() {
         int sum = 0;
-        int current;
         for (int i = 0; i < myBoard.length; i++) {
             for (int j = 0; j < myBoard.length; j++) {
-                current = myBoard[i][j];
-                for (int k = 0; k < myBoard.length; k++) {
-                    for (int m = 0; m < myBoard.length; m++) {
-                        if (k * myBoard.length + m + 1 == current) {
-                            sum += Math.abs(i - k) + Math.abs(j - m);
-                            k = m = myBoard.length;//break the two loops
-                        }
-                    }
+                if (myBoard[i][j] != 0) {
+                    int x, y;
+                    x = (myBoard[i][j] - 1) / myBoard.length;
+                    y = (myBoard[i][j] - 1) % myBoard.length;
+                    sum += Math.abs(i - x) + Math.abs(j - y);
                 }
             }
         }
@@ -177,12 +173,13 @@ public class Board {
                 }
             }
         }
+        
         return new Board(twinArr);
     }
 
     // unit testing (not graded)
     public static void main(String[] args) {
-        int[][] arr = {{1, 0, 3}, {4, 2, 5}, {7, 8, 6}};
+        int[][] arr = {{8, 1, 3}, {4, 0, 2}, {7, 6, 5}};
         int[][] arr2 = {{1, 0}, {2, 3}};
         Board test = new Board(arr);
         Board test2 = new Board(arr2);
