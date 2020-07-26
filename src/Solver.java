@@ -4,29 +4,29 @@ import edu.princeton.cs.algs4.Stack;
 import edu.princeton.cs.algs4.StdOut;
 
 public class Solver {
-    private State finalState;
-    private final Board initialboard;
+    private final State finalState;
+    private boolean solvable;
 
 
     private static class State implements Comparable<State> {
         final State previous;
         final int numOfMoves;
         final Board board;
-        final int manhattan;
+        final int priority;
 
         State(Board board, int numOfMoves, State previous) {
             this.previous = previous;
             this.numOfMoves = numOfMoves;
             this.board = board;
-            manhattan = this.board.manhattan();
+            priority = this.board.manhattan() + numOfMoves;
         }
 
         public int compareTo(State that) {
-            if ((this.manhattan + this.numOfMoves) == (that.manhattan + that.numOfMoves))
-                return 0;
-            else if ((this.manhattan + this.numOfMoves) < (that.manhattan + that.numOfMoves))
+            if (this.priority < that.priority)
                 return -1;
-            return 1;
+            else if (this.priority > that.priority)
+                return 1;
+            return 0;
         }
     }
 
@@ -35,93 +35,59 @@ public class Solver {
     public Solver(Board initial) {
         if (initial == null)
             throw new IllegalArgumentException();
-        initialboard = initial;
-        if (!isSolvable())
-            return;
+        solvable = false;
+
         MinPQ<State> states = new MinPQ<>();
+        MinPQ<State> twinStates = new MinPQ<>();
         State dequeued = new State(initial, 0, null);
         states.insert(dequeued);
+        State twinDequeued = new State(initial.twin(), 0, null);
+        twinStates.insert(twinDequeued);
 
-        while (!dequeued.board.isGoal()) {
+        while (true) {
             dequeued = states.delMin();
+            if (dequeued.board.isGoal()) {
+                solvable = true;
+                break;
+            }
+            twinDequeued = twinStates.delMin();
+            if (twinDequeued.board.isGoal()) {
+                break;
+            }
+
             for (Board itr : dequeued.board.neighbors()) {
                 State prev = dequeued.previous;
                 boolean seen = false;
-                while (prev != null) {
+                if (prev != null) {
                     if (itr.equals(prev.board)) {
                         seen = true;
-                        break;
                     }
-                    prev = prev.previous;
                 }
                 if (!seen)
                     states.insert(new State(itr, dequeued.numOfMoves + 1, dequeued));
             }
-        }
-        finalState = dequeued;
-    }
-
-    private static boolean isInteger(String str) {
-        if (str == null) {
-            return false;
-        }
-        int length = str.length();
-        if (length == 0) {
-            return false;
-        }
-        int i = 0;
-        if (str.charAt(0) == '-') {
-            if (length == 1) {
-                return false;
-            }
-            i = 1;
-        }
-        for (; i < length; i++) {
-            char c = str.charAt(i);
-            if (c < '0' || c > '9') {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    private int[] getInvCount() {
-        String[] arrOfStr = initialboard.toString().split("\n", 0);
-        int[][] arr = new int[arrOfStr.length - 1][arrOfStr.length - 1];
-        for (int i = 1; i < arrOfStr.length; i++) {
-            String[] tmp = arrOfStr[i].split(" ", 0);
-            for (int j = 0; j < arr.length; j++) {
-                if (isInteger(tmp[j]))
-                    arr[i - 1][j] = Integer.parseInt(tmp[j]);
-            }
-        }
-
-        int invariance = 0;
-        int max = 0;
-        int blankrow = 0;
-        for (int i = 0; i < arr.length; i++) {
-            for (int j = 0; j < arr.length; j++) {
-                if (arr[i][j] != 0) {
-                    if (max > arr[i][j]) {
-                        invariance += max - arr[i][j];
+            for (Board itr : twinDequeued.board.neighbors()) {
+                State prev = twinDequeued.previous;
+                boolean seen = false;
+                if (prev != null) {
+                    if (itr.equals(prev.board)) {
+                        seen = true;
                     }
-                    max = arr[i][j];
-                } else blankrow = i;
+                }
+
+                if (!seen)
+                    twinStates.insert(new State(itr, twinDequeued.numOfMoves + 1, twinDequeued));
             }
         }
-        int[] out = new int[2];
-        out[0] = invariance;
-        out[1] = blankrow;
-        return out;
+        if (solvable)
+            finalState = dequeued;
+        else finalState = null;
     }
+
 
     // is the initial board solvable? (see below)
     public boolean isSolvable() {
-        if (initialboard.dimension() % 2 == 0) {//for even board
-            return (getInvCount()[0] + getInvCount()[1]) % 2 != 0;
-        } else {//for odd board
-            return (getInvCount()[0] % 2 == 0);
-        }
+        return solvable;
     }
 
     // min number of moves to solve initial board; -1 if unsolvable

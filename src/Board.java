@@ -15,14 +15,14 @@ public class Board {
 
     // string representation of this board
     public String toString() {
-        String board = myBoard.length + "\n";
+        StringBuilder board = new StringBuilder(myBoard.length + "\n");
         for (int[] ints : myBoard) {
             for (int j = 0; j < myBoard.length; j++) {
-                board += ints[j] + " ";
+                board.append(ints[j]).append(" ");
             }
-            board += "\n";
+            board.append("\n");
         }
-        return board;
+        return board.toString();
     }
 
     // board dimension n
