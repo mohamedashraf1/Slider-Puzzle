@@ -183,19 +183,19 @@ public class Board {
         Board test = new Board(arr);
         Board test2 = new Board(arr2);
         System.out.println(test.toString());
-        System.out.println("hamming = " + test.hamming());
-        System.out.println("Manhattan = " + test.manhattan());
+        System.out.println(test.hamming());
+        System.out.println(test.manhattan());
         for (Board itr : test.neighbors()) {
             System.out.println(itr.toString());
         }
-        System.out.println("----------twin---------------");
+
         System.out.println(test.twin());
 
-        System.out.println("is Goal : " + test.isGoal());
+        System.out.println(test.isGoal());
 
-        System.out.println("size = " + test.dimension());
+        System.out.println(test.dimension());
 
-        System.out.println("equals : " + test.equals(test2));
+        System.out.println(test.equals(test2));
 
 
     }

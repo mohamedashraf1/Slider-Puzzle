@@ -61,30 +61,56 @@ public class Solver {
         finalState = dequeued;
     }
 
+    private static boolean isInteger(String str) {
+        if (str == null) {
+            return false;
+        }
+        int length = str.length();
+        if (length == 0) {
+            return false;
+        }
+        int i = 0;
+        if (str.charAt(0) == '-') {
+            if (length == 1) {
+                return false;
+            }
+            i = 1;
+        }
+        for (; i < length; i++) {
+            char c = str.charAt(i);
+            if (c < '0' || c > '9') {
+                return false;
+            }
+        }
+        return true;
+    }
+
     private int[] getInvCount() {
         String[] arrOfStr = initialboard.toString().split("\n", 0);
         int[][] arr = new int[arrOfStr.length - 1][arrOfStr.length - 1];
         for (int i = 1; i < arrOfStr.length; i++) {
             String[] tmp = arrOfStr[i].split(" ", 0);
             for (int j = 0; j < arr.length; j++) {
-                arr[i - 1][j] = Integer.parseInt(tmp[j]);
+                if (isInteger(tmp[j]))
+                    arr[i - 1][j] = Integer.parseInt(tmp[j]);
             }
         }
-        int count = 0;
+
+        int invariance = 0;
         int max = 0;
         int blankrow = 0;
         for (int i = 0; i < arr.length; i++) {
             for (int j = 0; j < arr.length; j++) {
                 if (arr[i][j] != 0) {
                     if (max > arr[i][j]) {
-                        count++;
+                        invariance += max - arr[i][j];
                     }
                     max = arr[i][j];
                 } else blankrow = i;
             }
         }
         int[] out = new int[2];
-        out[0] = count;
+        out[0] = invariance;
         out[1] = blankrow;
         return out;
     }
@@ -130,6 +156,8 @@ public class Solver {
         for (int i = 0; i < n; i++)
             for (int j = 0; j < n; j++)
                 tiles[i][j] = in.readInt();
+
+
         Board initial = new Board(tiles);
 
         // solve the puzzle
